@@ -1,0 +1,102 @@
+{
+    "name": "forge-test-assistant",
+    "displayName": "Forge Test Assistant",
+    "description": "This visual studio extension will allow you to quickly run Foundry tests and assists you during the process!",
+    "version": "0.0.1",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/StErMi/forge-test-assistant.git"
+    },
+    "author": {
+        "name": "StErMi",
+        "url": "https://github.com/StErMi"
+    },
+    "publisher": "StErMi",
+    "icon": "images/foundry-banner.png",
+    "engines": {
+        "vscode": "^1.88.0"
+    },
+    "categories": [
+        "Other",
+        "Testing"
+    ],
+    "pricing": "Free",
+    "activationEvents": [
+        "workspaceContains:**/foundry.toml"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Forge Test Assistant",
+            "properties": {
+                "forge-test-assistant.verbosity": {
+                    "type": "string",
+                    "markdownDescription": "Sets the default Verbosity level used when a test is run. The default value is '-vv', in which Logs emitted during tests are also displayed. For more informations please visit the [Foundry Book documentation](https://book.getfoundry.sh/forge/tests#logs-and-traces).",
+                    "enum": [
+                        "",
+                        "-vv",
+                        "-vvv",
+                        "-vvvv",
+                        "-vvvvv"
+                    ],
+                    "enumDescriptions": [
+                        "No verbosity",
+                        "Logs emitted during tests are also displayed. That includes assertion errors from tests, showing information such as expected vs actual.",
+                        "Stack traces for failing tests are also displayed.",
+                        "Stack traces for all tests are displayed, and setup traces for failing tests are displayed.",
+                        "Stack traces and setup traces are always displayed."
+                    ],
+                    "default": "-vv"
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "forge-test-assistant.runForgeTestMatchingContractName",
+                "title": "Run forge test by matching contract name"
+            },
+            {
+                "command": "forge-test-assistant.runForgeTestMatchingFunctionName",
+                "title": "Run forge test by matching function name"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "forge-test-assistant.runForgeTestMatchingContractName",
+                "key": "Ctrl+Shift+1",
+                "mac": "Cmd+Shift+1",
+                "when": "editorTextFocus && editorLangId == 'solidity'"
+            },
+            {
+                "command": "forge-test-assistant.runForgeTestMatchingFunctionName",
+                "key": "Ctrl+Shift+2",
+                "mac": "Cmd+Shift+2",
+                "when": "editorTextFocus && editorLangId == 'solidity'"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "vscode-test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^10.0.6",
+        "@types/node": "18.x",
+        "@types/vscode": "^1.88.0",
+        "@typescript-eslint/eslint-plugin": "^7.4.0",
+        "@typescript-eslint/parser": "^7.4.0",
+        "@vscode/test-cli": "^0.0.8",
+        "@vscode/test-electron": "^2.3.9",
+        "eslint": "^8.57.0",
+        "typescript": "^5.3.3"
+    },
+    "dependencies": {
+        "@foundry-rs/easy-foundryup": "^0.1.3",
+        "solidity-workspace": "^0.2.1"
+    }
+}
