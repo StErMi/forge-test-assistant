@@ -46,7 +46,11 @@ export class Commands {
             return;
         }
 
-        const soliditySourceUnit = await loadSoliditySourceUnit(this.config.solidityWorkspace, activeDocument.uri);
+        const soliditySourceUnit = await loadSoliditySourceUnit(
+            this.config.solidityWorkspace,
+            activeDocument.uri,
+            false
+        );
         const testFilePath = activeDocument.uri.path.replace(this.config.workspacePath + '/', '');
         const activePosition = activeEditor.selection.active;
 

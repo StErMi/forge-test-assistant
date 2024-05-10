@@ -82,13 +82,12 @@ export const parseSoliditySourceUnit = (soliditySourceUnit: any) => {
     return testContracts;
 };
 
-export const loadSoliditySourceUnit = async (solidityWorkspace: any, uri: vscode.Uri) => {
+export const loadSoliditySourceUnit = async (solidityWorkspace: any, uri: vscode.Uri, skipExistingPath: boolean) => {
     const fsPath = uri.fsPath;
     const soliditySourceUnit = await solidityWorkspace.add(fsPath, {
-        skipExistingPath: true,
+        skipExistingPath: skipExistingPath,
     });
     // need to perform it two times to fully solve all the inhertances
-    await solidityWorkspace.withParserReady(fsPath, true);
     await solidityWorkspace.withParserReady(fsPath, true);
     return soliditySourceUnit;
 };

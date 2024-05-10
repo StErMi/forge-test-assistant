@@ -15,10 +15,11 @@ export class TestFile {
         workspacePath: string,
         solidityWorkspace: any,
         controller: vscode.TestController,
-        item: vscode.TestItem
+        item: vscode.TestItem,
+        skipExistingPath: boolean
     ) {
         try {
-            const soliditySourceUnit = await loadSoliditySourceUnit(solidityWorkspace, item.uri!);
+            const soliditySourceUnit = await loadSoliditySourceUnit(solidityWorkspace, item.uri!, skipExistingPath);
             item.error = undefined;
             this.updateFromContents(workspacePath, controller, soliditySourceUnit, item);
         } catch (e) {
@@ -59,7 +60,10 @@ export class TestFile {
                 const data = new TestContract(testFilePath, contract.name, thisGeneration);
                 const id = `${item.uri}/${data.getLabel()}`;
                 const thead = controller.createTestItem(id, data.getLabel(), item.uri);
-                thead.range = contract.range;
+                thead.range = new vscode.Range(
+                    new vscode.Position(contract.range.start.line - 1, contract.range.start.character),
+                    new vscode.Position(contract.range.end.line, contract.range.end.character)
+                );
                 testData.set(thead, data);
                 parent.children.push(thead);
                 ancestors.push({ item: thead, children: [] });
@@ -82,7 +86,10 @@ export class TestFile {
 
                     const tcase = controller.createTestItem(id, data.getLabel(), item.uri);
                     testData.set(tcase, data);
-                    tcase.range = fn.range;
+                    tcase.range = new vscode.Range(
+                        new vscode.Position(fn.range.start.line - 1, fn.range.start.character),
+                        new vscode.Position(fn.range.end.line, fn.range.end.character)
+                    );
                     parent.children.push(tcase);
                 }
             }
@@ -154,6 +161,7 @@ export class TestCase {
                 this.type === TestFunctionType.TEST ? 'Test' : 'Invariant'
             } | Fuzzed: ${this.fuzzed} | Expected ${!this.expectFail ? '✅' : '❌'}\r\n`
         );
+        options.appendOutput(`├── Command: ${this.getCommand()}\r\n`);
         return new Promise((resolve) => {
             exec(`${this.getCommand()} --json`, { cwd: workspacePath }, (err, stdout, stderr) => {
                 // when the forge test fails (assertion) it returns an error object anyway

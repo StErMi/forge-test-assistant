@@ -75,7 +75,8 @@ export class TestManager {
                                 this.config.workspacePath,
                                 this.config.solidityWorkspace,
                                 this.testController,
-                                test
+                                test,
+                                false
                             );
                         }
 
@@ -103,7 +104,7 @@ export class TestManager {
         this.testController.refreshHandler = async () => {
             await Promise.all(
                 this._getWorkspaceTestPatterns().map(({ pattern }) => {
-                    this._findInitialFiles(this.testController, pattern);
+                    this._findInitialFiles(this.testController, pattern, true);
                 })
             );
         };
@@ -137,25 +138,26 @@ export class TestManager {
                     this.config.workspacePath,
                     this.config.solidityWorkspace,
                     this.testController,
-                    item
+                    item,
+                    false
                 );
             }
         };
 
         // iterate over all the files and see if there are already available tests
         for (const document of vscode.workspace.textDocuments) {
-            await this._updateNodeForDocument(document);
+            await this._updateNodeForDocument(document, true);
         }
 
         // when user open a file or change it content update the test file
         // `_updateNodeForDocument` will take care to skip the task if it's not a valid test file
         context.subscriptions.push(
-            vscode.workspace.onDidOpenTextDocument((e) => this._updateNodeForDocument(e)),
-            vscode.workspace.onDidChangeTextDocument((e) => this._updateNodeForDocument(e.document))
+            vscode.workspace.onDidOpenTextDocument((e) => this._updateNodeForDocument(e, false)),
+            vscode.workspace.onDidChangeTextDocument((e) => this._updateNodeForDocument(e.document, false))
         );
     }
 
-    private async _updateNodeForDocument(e: vscode.TextDocument) {
+    private async _updateNodeForDocument(e: vscode.TextDocument, skipExistingPath: boolean) {
         // if it's not a file OR it's not a solidity file OR it's not inside the test folder -> ignore it
         if (
             e.uri.scheme !== 'file' ||
@@ -165,14 +167,22 @@ export class TestManager {
             return;
         }
 
-        const { file, data } = await this._getOrCreateFile(this.testController, e.uri);
+        const { file, data } = await this._getOrCreateFile(this.testController, e.uri, skipExistingPath);
         if (file) {
-            const soliditySourceUnit = await loadSoliditySourceUnit(this.config.solidityWorkspace, e.uri);
+            const soliditySourceUnit = await loadSoliditySourceUnit(
+                this.config.solidityWorkspace,
+                e.uri,
+                skipExistingPath
+            );
             data.updateFromContents(this.config.workspacePath, this.testController, soliditySourceUnit, file);
         }
     }
 
-    private async _findInitialFiles(controller: vscode.TestController, pattern: vscode.GlobPattern) {
+    private async _findInitialFiles(
+        controller: vscode.TestController,
+        pattern: vscode.GlobPattern,
+        skipExistingPath: boolean
+    ) {
         vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
@@ -182,7 +192,7 @@ export class TestManager {
             async (progress, token) => {
                 const files = await vscode.workspace.findFiles(pattern);
                 for (const _file of files) {
-                    await this._getOrCreateFile(controller, _file);
+                    await this._getOrCreateFile(controller, _file, skipExistingPath);
                 }
             }
         );
@@ -205,13 +215,13 @@ export class TestManager {
         }));
     }
 
-    private async _getOrCreateFile(controller: vscode.TestController, uri: vscode.Uri) {
+    private async _getOrCreateFile(controller: vscode.TestController, uri: vscode.Uri, skipExistingPath: boolean) {
         const existing = controller.items.get(uri.toString());
         if (existing) {
             return { file: existing, data: testData.get(existing) as TestFile };
         }
 
-        const soliditySourceUnit = await loadSoliditySourceUnit(this.config.solidityWorkspace, uri);
+        const soliditySourceUnit = await loadSoliditySourceUnit(this.config.solidityWorkspace, uri, skipExistingPath);
         const solidityTestFile = parseSoliditySourceUnit(soliditySourceUnit);
         if (solidityTestFile!.length > 0) {
             const file = controller.createTestItem(uri.toString(), uri.path.split('/').pop()!, uri);
@@ -236,19 +246,26 @@ export class TestManager {
             const watcher = vscode.workspace.createFileSystemWatcher(pattern);
 
             watcher.onDidCreate((uri) => {
-                this._getOrCreateFile(controller, uri);
+                this._getOrCreateFile(controller, uri, true);
                 fileChangedEmitter.fire(uri);
             });
             watcher.onDidChange(async (uri) => {
-                const { file, data } = await this._getOrCreateFile(controller, uri);
+                const skipExistingPath = false;
+                const { file, data } = await this._getOrCreateFile(controller, uri, skipExistingPath);
                 if (data && data.didResolve) {
-                    await data.updateFromDisk(this.config.workspacePath, solidityWorkspace, controller, file);
+                    await data.updateFromDisk(
+                        this.config.workspacePath,
+                        solidityWorkspace,
+                        controller,
+                        file,
+                        skipExistingPath
+                    );
                 }
                 fileChangedEmitter.fire(uri);
             });
             watcher.onDidDelete((uri) => controller.items.delete(uri.toString()));
 
-            this._findInitialFiles(controller, pattern);
+            this._findInitialFiles(controller, pattern, true);
 
             return watcher;
         });
