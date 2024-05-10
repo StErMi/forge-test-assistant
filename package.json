@@ -2,7 +2,7 @@
     "name": "forge-test-assistant",
     "displayName": "Forge Test Assistant",
     "description": "This visual studio extension will allow you to quickly run Foundry tests and assists you during the process!",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "repository": {
         "type": "git",
         "url": "https://github.com/StErMi/forge-test-assistant.git"
