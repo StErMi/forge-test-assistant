@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.0.2] - 2023-05-09
+
+### Fixed
+
+-   Fixed visual position of "Run test" UI button
+-   Improved solidity imports discoverability
+
 ## [0.0.1] - 2023-05-09
 
 ### Added
