@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.0.3] - 2023-05-13
+
+### Fixed
+
+-   `foundry.toml` is loaded from the correct workspace path
+-   `src` from `foundry.toml` is used as relative path
+
 ## [0.0.2] - 2023-05-09
 
 ### Fixed
