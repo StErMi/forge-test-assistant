@@ -4,7 +4,7 @@ export interface ExtensionConfig {
     solidityWorkspace: any;
     workspacePath: any;
     forgeConfig: { [key: string]: any };
-    testFolderName: string;
+    testFolderPath: string;
 }
 
 export interface ErrorToast {

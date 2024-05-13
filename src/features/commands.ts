@@ -40,7 +40,7 @@ export class Commands {
         if (
             activeDocument.uri.scheme !== 'file' ||
             !activeDocument.uri.path.endsWith('.sol') ||
-            !activeDocument.uri.path.startsWith(`${this.config.workspacePath}/${this.config.testFolderName}`)
+            !activeDocument.uri.path.startsWith(`${this.config.workspacePath}/${this.config.testFolderPath}`)
         ) {
             printError({ type: ErrorType.NOT_SOLIDITY_TEST_FILE, warning: true });
             return;

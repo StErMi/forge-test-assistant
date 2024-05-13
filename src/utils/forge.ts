@@ -2,12 +2,14 @@ import * as vscode from 'vscode';
 import { execSync } from 'child_process';
 import { ForgeTestResult } from '../features/models';
 
-export const loadForgeConfigSync = () => {
-    const rawContent = execSync('forge config --json', { stdio: 'pipe' }).toString();
+export const loadForgeConfigSync = (workspaceRootPath: string) => {
+    const rawContent = execSync('forge config --json', { stdio: 'pipe', cwd: workspaceRootPath }).toString();
     const config = JSON.parse(rawContent);
 
+    // by default the src folder is 'src'
     // by default the test folder is 'test'
     return {
+        src: config.src ? config.src : 'src',
         test: config.test ? config.test : 'test',
     };
 };

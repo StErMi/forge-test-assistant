@@ -162,7 +162,7 @@ export class TestManager {
         if (
             e.uri.scheme !== 'file' ||
             !e.uri.path.endsWith('.sol') ||
-            !e.uri.path.startsWith(`${this.config.workspacePath}/${this.config.testFolderName}`)
+            !e.uri.path.startsWith(`${this.config.workspacePath}/${this.config.testFolderPath}`)
         ) {
             return;
         }
@@ -211,7 +211,7 @@ export class TestManager {
 
         return vscode.workspace.workspaceFolders.map((workspaceFolder) => ({
             workspaceFolder,
-            pattern: new vscode.RelativePattern(workspaceFolder, `${this.config.testFolderName}/**/*.sol`),
+            pattern: new vscode.RelativePattern(workspaceFolder, `${this.config.testFolderPath}/**/*.sol`),
         }));
     }
 
