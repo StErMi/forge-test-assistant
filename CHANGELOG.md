@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.0.4] - 2023-05-13
+
+### Fixed
+
+-   Fixed wrong path usage when forge test results had to be parsed
+
 ## [0.0.3] - 2023-05-13
 
 ### Fixed

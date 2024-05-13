@@ -25,16 +25,16 @@ export async function activate(context: vscode.ExtensionContext) {
     // load Forge config from the TOML file
     const forgeConfig = loadForgeConfigSync(workspaceRootPath);
     // workspace path + root src
-    const workspaceRootSolidityPath = workspaceRootPath + '/' + forgeConfig.src;
+    const testSolidityPath = forgeConfig.src + '/' + forgeConfig.test;
     // initialize the solidity workspace module
     const solidityWorkspace = new mod_parser.Workspace([
         `${workspaceRootPath}/`,
-        `${workspaceRootSolidityPath}/${forgeConfig.test}`,
+        `${workspaceRootPath}/${testSolidityPath}`,
     ]);
     config = {
-        workspacePath: workspaceRootSolidityPath,
+        workspacePath: workspaceRootPath,
         forgeConfig: forgeConfig,
-        testFolderPath: forgeConfig.test,
+        testFolderPath: testSolidityPath,
         solidityWorkspace,
     };
 
